@@ -26,7 +26,7 @@ const OriginWidget = () => {
     const enableSimMode = () => {
         setIsSimMode(true);
         localStorage.setItem('simMode', 'true');
-        updateAPIBaseURL('192.168.1.3:5000/');
+        updateAPIBaseURL('https://seaweatherstation.onrender.com/');
     };
     
     const enableLiveMode = () => {

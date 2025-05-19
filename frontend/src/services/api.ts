@@ -1,4 +1,4 @@
-let API_BASE_URL = 'http://192.168.1.3:5000/';
+let API_BASE_URL = 'https://seaweatherstation.onrender.com/';
 export const getBaseURL = () => API_BASE_URL;
 
 // Initialize from localStorage if available
