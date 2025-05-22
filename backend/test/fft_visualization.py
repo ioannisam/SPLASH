@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from sensors.handler import SerialHandler  # Updated import
+from sensors.handler import SerialHandler
 from analysis.wave_analysis import wave_metrics
 
 def capture_test_data(duration=30):
@@ -14,13 +14,13 @@ def capture_test_data(duration=30):
     samples = []
     
     print(f"Capturing {duration} seconds of data...")
-    for _ in range(duration * 100):  # 100Hz × duration
+    for _ in range(duration*100):  # 100Hz × duration
         samples.extend(handler.get_accel_history())
         time.sleep(0.01)
     
     return np.array(samples)
 
-def plot(test_data):
+def plot(test_data, save_path=None):
     """Visualize converted data (m/s²) and FFT results"""
     # convert raw LSB to m/s² (same as wave_analysis.py)
     lsb_to_ms2 = 9.81 / 16384  # MPU6050 ±2g scale
@@ -56,8 +56,11 @@ def plot(test_data):
     plt.xlim(0, 10)
 
     plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path)
+        print(f"Figure saved to {save_path}")
     plt.show()
 
 if __name__ == "__main__":
     raw_data = capture_test_data()
-    plot(raw_data)
+    plot(raw_data, save_path="fft_visualization.png")

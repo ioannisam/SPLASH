@@ -53,13 +53,4 @@ def inundation(metrics, slope=0.05):
         'runup': round(R2, 2),
         'zone': zone,
         'inundation': round(R2/slope, 2)
-
     }
-
-# source: https://data-ww3.ifremer.fr/BIB/Stockdon_etal_CE2006.pdf Stockdon et al. (2006)
-# source: https://www.fema.gov/sites/default/files/documents/fema_coastal-floodplain-mapping_112022.pdf
-
-# example
-# metrics = {'frequency': 0.2, 'height': 0.3}
-# result = inundation(metrics, slope=0.05)
-# print(f"""Runup: {result['runup']:.2f}m\nZone: {result['zone']}\nInundation: {result['inundation']:.2f}m""")
