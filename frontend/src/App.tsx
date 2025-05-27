@@ -102,7 +102,7 @@ const App = () => {
         {/* Title */}
         <div className="flex items-center font-bold mt-6">
           <img src={logo} alt="Logo" className="mb-2.5 w-8 h-8 mr-4" />
-          <h1 className="text-text text-[2.7rem] font-exile pb-2 font-bold">O.C.E.A.N</h1>
+          <h1 className="text-text text-[2.5rem] font-exile pb-2 font-bold">S.P.L.A.S.H</h1>
         </div>
         
         {/* Location */}

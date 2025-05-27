@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { updateAPIBaseURL, getBaseURL } from '@/services/api';
 
 const OriginWidget = () => {
-    const [isSimMode, setIsSimMode] = useState(false);
+    const [isSimMode, setIsSimMode] = useState(true);
     const [inputValue, setInputValue] = useState('');
     
     // Initialize based on current API URL and stored mode

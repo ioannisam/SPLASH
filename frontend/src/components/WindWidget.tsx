@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 const WindWidget = () => {
     const [wind, setWind] = useState(null);
-    const [windIcon, setWindIcon] = useState(null);
+    const [windIcon, setWindIcon] = useState(<CircleChevronUp className="text-text" strokeWidth={2} size={50} />);
     const [windDescription, setWindDescription] = useState(null);
 
     const fetchWind = async () => {
