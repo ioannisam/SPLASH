@@ -39,13 +39,13 @@ float mapfloat(float x, float in_min, float in_max, float out_min, float out_max
 void setup() {
 
   Serial.begin(9600);
-  mpu.initialize();
   
-  /*Serial.println(F("BMP280 test"));
-  if  (!bmp.begin()) {
+  
+  Serial.println(F("BMP280 test"));
+  if  (!bmp.begin(0x76)) {
   Serial.println(F("Could not find a valid BMP280 sensor,  check wiring!"));
-  while (1);
-  */
+  //while (1);
+  }
   
   /* Default settings from datasheet.  */
   bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
@@ -53,6 +53,7 @@ void setup() {
                   Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_500);  /* Standby time. */
+mpu.initialize();
 }
 
 void loop() {
@@ -73,26 +74,19 @@ void loop() {
     //Serial.print(battery_level);
     //Serial.print(":");
     
-    //REAL MEASURMENTS
-    /*
-    Serial.print(bmp.readTemperature()); // in *C degrees
-    Serial.print(":");
-    Serial.print(bmp.readPressure()/100);  //displaying the Pressure in hPa, you can change the unit
-    Serial.print(":");
-    */
-    
-    //DUMMY MEASURMENTS
+    //MEASURMENTS
     Serial.print(40.636427, 6); //Latitude
     Serial.print(":");
     Serial.print(22.947077, 6); //Longitude
     Serial.print(":");
-    Serial.print(-69); //Signal Strength
+    Serial.print(-39); //Signal Strength
     Serial.print(":");
-    Serial.print(23); // in *C degrees
+    Serial.print(bmp.readTemperature()); // in *C degrees
     Serial.print(":");
-    Serial.print(1000);  //displaying the Pressure in hPa, you can change the unit
+    Serial.print(bmp.readPressure()/100);  //displaying the Pressure in hPa, you can change the unit
     Serial.print(":");
   }
   Serial.print(az);
   Serial.println();
+  //delay(1000);
 }
