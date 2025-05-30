@@ -58,7 +58,7 @@ void setup() {
   
   //Serial.println(F("BMP280 test"));
   
-  if  (!bmp.begin()) {
+  if  (!bmp.begin(0x76)) {
   Serial.println(F("ERROR"));
   //  while (1);
   }
