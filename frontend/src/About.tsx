@@ -55,7 +55,7 @@ const About = () => {
                 <p className="mt-2 text-text-secondary">To gather actual data:</p>
                 <ol className="space-y-1 list-decimal pl-5 text-text-secondary">
                     <li>Set up the Arduino drone and connect it to a computer acting as backend server</li>
-                    <li>The server will communicate with the drone through a second Arduino using a pair of RF22 modules</li>
+                    <li>The server will communicate with the drone through a second Arduino using a pair of RFM22 modules</li>
                     <li>Connect the backend server with the web application by selecting the <span className="font-semibold">Live</span> option on the main page</li>
                     <li>Enter the server's local IP address and port</li>
                 </ol>
