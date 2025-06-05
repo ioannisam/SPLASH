@@ -14,7 +14,7 @@
     urlcolor=blue
 }
 \newcolumntype{C}{>{\centering\arraybackslash}c}
-\title{SPLASH}
+\title{Sea Weather Station}
 \author{Vasileios Zoidis, Iasonas Lamprinidis, Ioannis, Michalainas, Savvas Tzanetis}
 \date{May 2025}
 
@@ -23,7 +23,7 @@
 \maketitle
 \begin{center}
   \textbf{Repository:} \\
-  \href{https://github.com/ioannisam/SPLASH}{github.com/ioannisam/SPLASH}
+  \href{https://github.com/ioannisam/SeaWeatherStation}{github.com/ioannisam/SeaWeatherStation}
 \end{center}
 \bigskip
 \begin{abstract}
@@ -34,12 +34,23 @@
 
 \newgeometry{top=1.5cm, bottom=1.5cm, right=1.5cm, left=1.5cm}
 \section{Introduction}
-This project implements a \textit{remote weather station}. The premise is to use multiple Arduino devices to create a network of data nodes. These nodes will monitor temperature, pressure and estimated wave shore impact/height at sea level. Collected data will then be displayed in a web application, to be used by fishermen, researchers or hobbyists.
+This project implements a \textit{remote weather station}. The premise is to use multiple Arduino devices to create a network of data nodes. These nodes will monitor temperature, pressure, and estimated wave shore impact/height at sea level. The collected data will then be displayed on a web application for fishermen, researchers, or hobbyists to use.
     
     \subsection{Motivation and Objectives}
+
+    The primary motivation for this project is to enable \textbf{cost-effective}, \textbf{modular}, and \textbf{remote monitoring} of maritime weather conditions using low-power Arduino nodes. Real-time insights into \textit{temperature}, \textit{atmospheric pressure}, and \textit{wave activity} (approximated via accelerometer data) are crucial for coastal monitoring, fishing safety, and climate research.
+    
+\vspace{0.5cm}
+\textbf{Objectives}:
+\begin{itemize}
+    \item Design a distributed sensor node that gathers environmental data.
+    \item Implement wireless communication between sensor and receiver using RF modules.
+    \item Display gathered information on a centralized platform.
+    \item Optimize energy use through staggered data transmission and low-power components.
+\end{itemize}
     
     \subsection{Report Structure}
-    This report's structure mimics the workflow of our app. We will be explaining from the bottom up the architecture, design choices and development stages of our project.
+    This report's structure mimics the workflow of our app. We will be explaining from the bottom up the architecture, design choices, and development stages of our project.
 
     \begin{figure} [h]
         \centering
@@ -50,17 +61,79 @@ This project implements a \textit{remote weather station}. The premise is to use
     
 \section{Arduino}
 \subsection{Hardware Components}
-    \subsubsection{Sensor Selection}
-    \subsubsection{Wiring and Pinout}
-    \subsubsection{Enclosure and Mounting}
-\subsection{Transmitter Module}
-    \subsubsection{Data Acquisition Loop}
-    \subsubsection{Transmission}
-    \subsubsection{Power Management}
-\subsection{Receiver Module}
-    \subsubsection{Reception}
-    \subsubsection{Serial Output}
+We aimed to develop a compact and cost-effective environmental sensing system capable of monitoring atmospheric conditions, motion dynamics, and geographic positioning. 
+\subsubsection{Sensor Selection}
+That's why three sensors were integrated into the transmitter node:
 
+\begin{tabular}{@{}m{0.25\textwidth} m{0.7\textwidth}@{}}
+    \includegraphics[width=0.9\linewidth, angle=90]{assets/bmp280.jpg} &
+    \textbf{BMP280}: Measures atmospheric temperature and pressure with high precision and stability. \\
+    
+    \includegraphics[width=0.7\linewidth]{assets/mpu6050.jpeg} &
+    \textbf{MPU6050}: A 6-axis accelerometer and gyroscope used to estimate wave impact or surface motion dynamics. \\
+    
+    \includegraphics[width=0.9\linewidth]{assets/neo_6M_gps.jpg} &
+    \textbf{NEO-6M}: A GPS module, known for its compact size, affordability, and reliable performance. \\
+\end{tabular}
+
+These sensors were selected for their balance between accuracy, affordability, and compatibility with Arduino-based systems.
+
+
+\subsubsection{Wiring and Pinout}
+\begin{itemize}
+    \item \textbf{BMP280} is connected via I\textsuperscript{2}C using default SDA and SCL pins.
+    \item \textbf{MPU6050} shares the same I\textsuperscript{2}C bus.
+    \item \textbf{NEO-6M} is connected via UART using digital pin 2 and 3 for the Rx and Tx connections respectively.
+    \item \textbf{RF22 module} uses SPI, with connections depending on the specific Arduino board used (for the Uno: MOSI = 11, MISO = 12, SCK = 13, SS = 10).
+\end{itemize}
+\begin{figure} [h]
+        \centering
+        \includegraphics[width=0.6\linewidth]{assets/circuit-design.png}
+        \caption{Circuit Design}
+        \label{fig:enter-label}
+\end{figure}
+\newpage
+
+\subsubsection{Enclosure and Mounting}
+The enclosure is waterproof and weather resistant, as well as plastic, so that the various transmissions can pass uninterrupted. The MPU6050 sensor is oriented such that the Z-axis faces upward, enabling detection of vertical movement from wave activity.
+
+\subsection{Transmitter Module}
+\subsubsection{Data Acquisition Loop}
+Sensor readings are acquired in each loop iteration:
+\begin{itemize}
+    \item BMP280 returns temperature and pressure.
+    \item MPU6050 returns raw acceleration and gyroscopic values.
+    \item NEO-6M returns latitude and longitude.
+\end{itemize}
+Every second, a full data packet is composed, including coordinates, temperature, pressure, signal strength, and vertical acceleration. In intermediate cycles, only acceleration data are transmitted to reduce energy consumption.
+
+\subsubsection{Transmission}
+\begin{itemize}
+    \item Communication uses \textbf{RF22 modules} configured with GFSK modulation at \textbf{440 MHz}.
+    \item Packets are transmitted using \texttt{sendtoWait()} with acknowledgment.
+    \item Configuration includes maximum transmission power (20 dBm) and modulation settings optimized for balance between range and speed.
+\end{itemize}
+
+\subsubsection{Power Management}
+Although advanced sleep modes are not implemented, energy efficiency is improved via:
+\begin{itemize}
+    \item Selective data transmission/sending full packets once per second.
+    \item Configurable transmission power.
+    \item Power-efficient sensors.
+\end{itemize}
+
+\subsection{Receiver Module}
+\subsubsection{Reception}
+The receiver node mirrors the transmitter's configuration for compatibility. It:
+\begin{itemize}
+    \item Uses the same frequency and modulation settings.
+    \item Listens continuously for incoming data packets using \texttt{recvfromAck()}.
+    \item Calculates signal strength (RSSI) for logging and diagnostics.
+\end{itemize}
+
+\subsubsection{Serial Output}
+Incoming data packets are printed directly onto the serial monitor in string format. This output is redirected to the backend and GUI for end-user visualization and analysis.
+\newpage
 \section{Backend}
 In this section we discuss the backend's features and capabilities, as well as its architecture. The role of the backend is to capture raw data from the sensor, analyze it, package it and send it to the frontend to be displayed in a meaningful way.
 
@@ -236,14 +309,17 @@ How to operate our Weather Station:
             & \multicolumn{1}{c}{\textbf{Quantity}} 
             & \multicolumn{1}{c}{\textbf{Price (€)}} \\
         \midrule
-        Arduino Uno R3           & 1 & A \\
-        DHT22 Temperature Sensor & 2 & B \\
-        BMP280 Pressure Sensor   & 1 & C \\
-        ESP8266 Wi-Fi Module     & 1 & D \\
-        Jumper Wires (pack)      & 1 & E \\
-        USB Power Cable          & 1 & F \\
+        Arduino Uno R3           & 1 & 25 \\
+        Powerbank                & 1 & 10 \\
+        NEO-6M GPS               & 1 &  7 \\
+        MPU6050 Sensor           & 1 &  3 \\
+        BMP280 Sensor            & 1 &  2 \\
+        Waterproof enclosure     & 1 &  2 \\
+        USB Power Cable          & 1 &  1 \\
+        Jumper Wires             & 10 & 1 \\
+        Prototyping board        & 10 & .5 \\
         \midrule
-        \textbf{Total}           &   & \textbf{G} \\
+        \textbf{Total}           &   & \textbf{41.5} \\
         \bottomrule
     \end{tabular}
     \caption{Bill of Materials}

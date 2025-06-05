@@ -36,8 +36,8 @@ const WaveWidget = () => {
     // Function to determine safety status and color
     const getSafetyStatus = () => {
         if (runup === null) return { text: 'Unknown', color: '#999' };
-        if (runup < 0.2) return { text: 'Safe', color: '#22c55e' };
-        if (runup < 0.5) return { text: 'Moderate', color: '#f59e0b' };
+        if (runup < 1) return { text: 'Safe', color: '#22c55e' };
+        if (runup < 5) return { text: 'Moderate', color: '#f59e0b' };
         return { text: 'Caution', color: '#ef4444' };
     };
     
@@ -66,8 +66,8 @@ const WaveWidget = () => {
                         <LineChart data={runupHistory} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                             <YAxis domain={[0, 'auto']} hide={true} />
-                            <ReferenceLine y={0.5} stroke="#ef4444" strokeDasharray="3 3" />
-                            <ReferenceLine y={0.2} stroke="#f59e0b" strokeDasharray="3 3" />
+                            <ReferenceLine y={5} stroke="#ef4444" strokeDasharray="3 3" />
+                            <ReferenceLine y={1} stroke="#f59e0b" strokeDasharray="3 3" />
                             <Line 
                                 type="monotone" 
                                 dataKey="value" 

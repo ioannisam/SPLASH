@@ -55,10 +55,10 @@ const App = () => {
       if (waveData.zone === 'VE' || waveData.zone === 'V') {
         // Coastal high-risk zones with wave action
         setShowTsunamiAlert(true); // Using same alert for now, could create a separate coastal hazard alert
-      } else if (waveData.zone === 'AE' && waveData.runup > 0.5) {
+      } else if (waveData.zone === 'AE' && waveData.runup > 5) {
         // High risk flood zone with significant runup
         setShowTsunamiAlert(true);
-      } else if (waveData.inundation > 8) {
+      } else if (waveData.inundation > 10) {
         // Extreme inundation regardless of zone
         setShowTsunamiAlert(true);
       } else {
