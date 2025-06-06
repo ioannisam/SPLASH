@@ -14,43 +14,43 @@
     urlcolor=blue
 }
 \newcolumntype{C}{>{\centering\arraybackslash}c}
-\title{Sea Weather Station}
-\author{Vasileios Zoidis, Iasonas Lamprinidis, Ioannis, Michalainas, Savvas Tzanetis}
-\date{May 2025}
+\title{SPLASH}
+\author{Iasonas Lamprinidis, Vasileios Zoidis, Ioannis Michalainas, Savvas Tzanetis}
+\date{May-June 2025}
 
 \begin{document}
 
 \maketitle
 \begin{center}
   \textbf{Repository:} \\
-  \href{https://github.com/ioannisam/SeaWeatherStation}{github.com/ioannisam/SeaWeatherStation}
+  \href{https://github.com/ioannisam/SPLASH}{github.com/ioannisam/SPLASH}
 \end{center}
 \bigskip
 \begin{abstract}
-    A brief overview of the Sea Weather Station project: goals, key features, and overall system architecture.
+    \centering{SPLASH - Sea Parameter Logging And Sensor Hub. \newline A brief overview of the project: goals, key features and overall system architecture.}
 \end{abstract}
 \tableofcontents
 \clearpage
 
 \newgeometry{top=1.5cm, bottom=1.5cm, right=1.5cm, left=1.5cm}
 \section{Introduction}
-This project implements a \textit{remote weather station}. The premise is to use multiple Arduino devices to create a network of data nodes. These nodes will monitor temperature, pressure, and estimated wave shore impact/height at sea level. The collected data will then be displayed on a web application for fishermen, researchers, or hobbyists to use.
+This project implements a \textit{remote weather station}. The premise is to use multiple Arduino devices to create a network of data nodes. These nodes will monitor temperature, pressure and estimated wave shore impact/height at sea level. The collected data will then be displayed on a web application for fishermen, researchers, or hobbyists to use.
     
     \subsection{Motivation and Objectives}
 
-    The primary motivation for this project is to enable \textbf{cost-effective}, \textbf{modular}, and \textbf{remote monitoring} of maritime weather conditions using low-power Arduino nodes. Real-time insights into \textit{temperature}, \textit{atmospheric pressure}, and \textit{wave activity} (approximated via accelerometer data) are crucial for coastal monitoring, fishing safety, and climate research.
+    The primary motivation for this project is to enable \textbf{cost-effective}, \textbf{modular} \textbf{remote monitoring} of maritime weather conditions using low-power Arduino nodes. Real-time insights into \textit{temperature}, \textit{atmospheric pressure} and \textit{wave activity} (approximated via accelerometer data) are crucial for coastal monitoring, fishing safety and climate research.
     
-\vspace{0.5cm}
-\textbf{Objectives}:
-\begin{itemize}
-    \item Design a distributed sensor node that gathers environmental data.
-    \item Implement wireless communication between sensor and receiver using RF modules.
-    \item Display gathered information on a centralized platform.
-    \item Optimize energy use through staggered data transmission and low-power components.
-\end{itemize}
+    \vspace{0.5cm}
+    \textbf{Objectives}:
+    \begin{itemize}
+        \item Design a distributed sensor node that gathers environmental data.
+        \item Implement wireless communication between sensor and receiver using RF modules.
+        \item Display gathered information on a centralized platform.
+        \item Optimize energy use through staggered data transmission and low-power components.
+    \end{itemize}
     
     \subsection{Report Structure}
-    This report's structure mimics the workflow of our app. We will be explaining from the bottom up the architecture, design choices, and development stages of our project.
+    This report's structure mimics the workflow of our app. We will be explaining from the bottom up the architecture, design choices and development stages of our project.
 
     \begin{figure} [h]
         \centering
@@ -58,81 +58,69 @@ This project implements a \textit{remote weather station}. The premise is to use
         \caption{Workflow}
         \label{fig:enter-label}
     \end{figure}
-    
-\section{Arduino}
-\subsection{Hardware Components}
-We aimed to develop a compact and cost-effective environmental sensing system capable of monitoring atmospheric conditions, motion dynamics, and geographic positioning. 
-\subsubsection{Sensor Selection}
-That's why three sensors were integrated into the transmitter node:
 
-\begin{tabular}{@{}m{0.25\textwidth} m{0.7\textwidth}@{}}
-    \includegraphics[width=0.9\linewidth, angle=90]{assets/bmp280.jpg} &
-    \textbf{BMP280}: Measures atmospheric temperature and pressure with high precision and stability. \\
-    
-    \includegraphics[width=0.7\linewidth]{assets/mpu6050.jpeg} &
-    \textbf{MPU6050}: A 6-axis accelerometer and gyroscope used to estimate wave impact or surface motion dynamics. \\
-    
-    \includegraphics[width=0.9\linewidth]{assets/neo_6M_gps.jpg} &
-    \textbf{NEO-6M}: A GPS module, known for its compact size, affordability, and reliable performance. \\
-\end{tabular}
-
-These sensors were selected for their balance between accuracy, affordability, and compatibility with Arduino-based systems.
-
-
-\subsubsection{Wiring and Pinout}
-\begin{itemize}
-    \item \textbf{BMP280} is connected via I\textsuperscript{2}C using default SDA and SCL pins.
-    \item \textbf{MPU6050} shares the same I\textsuperscript{2}C bus.
-    \item \textbf{NEO-6M} is connected via UART using digital pin 2 and 3 for the Rx and Tx connections respectively.
-    \item \textbf{RF22 module} uses SPI, with connections depending on the specific Arduino board used (for the Uno: MOSI = 11, MISO = 12, SCK = 13, SS = 10).
-\end{itemize}
-\begin{figure} [h]
-        \centering
-        \includegraphics[width=0.6\linewidth]{assets/circuit-design.png}
-        \caption{Circuit Design}
-        \label{fig:enter-label}
-\end{figure}
 \newpage
-
-\subsubsection{Enclosure and Mounting}
-The enclosure is waterproof and weather resistant, as well as plastic, so that the various transmissions can pass uninterrupted. The MPU6050 sensor is oriented such that the Z-axis faces upward, enabling detection of vertical movement from wave activity.
-
+\section{Arduino}
+In this section, we discuss the Arduino system’s features, capabilities, and architecture. The role of the Arduino module is to acquire raw data from multiple sensors, process and format it into structured packets, and wirelessly transmit it to the receiver for further handling. This hardware platform serves as the primary interface with the physical environment, enabling real-time environmental monitoring and data collection.
+\subsection{Hardware Components}
+    \subsubsection{Sensor Selection}
+    We aimed to develop a compact and cost-effective environmental sensing system capable of monitoring atmospheric conditions, motion dynamics, and geographic positioning. This is the reason why the following three sensors were integrated into the transmitter node:
+    
+    \begin{tabular}{@{}m{0.25\textwidth} m{0.7\textwidth}@{}}
+        \includegraphics[width=0.9\linewidth, angle=90]{assets/bmp280.jpg} &
+        \textbf{BMP280}: Measures atmospheric temperature and pressure with high precision and stability. \\
+        
+        \hspace{7mm} \includegraphics[width=0.6\linewidth]{assets/mpu6050.jpeg} &
+        \textbf{MPU6050}: A 6-axis accelerometer and gyroscope used to estimate wave impact or surface motion dynamics (via the z-axis). \\
+        
+        \includegraphics[width=0.9\linewidth]{assets/neo_6M_gps.jpg} &
+        \textbf{NEO-6M}: A GPS module, known for its compact size, affordability and reliable performance. \\
+    \end{tabular}
+    
+    These sensors were selected for their balance between accuracy, affordability and compatibility with Arduino-based systems.
+    
+    \subsubsection{Wiring and Pinout}
+    \begin{itemize}
+        \item \textbf{BMP280} is connected via I\textsuperscript{2}C using default SDA and SCL pins.
+        \item \textbf{MPU6050} shares the same I\textsuperscript{2}C bus.
+        \item \textbf{NEO-6M} is connected via UART using digital pin 2 and 3 for the Rx and Tx connections respectively.
+        \item \textbf{RF22 module} uses SPI, with connections depending on the specific Arduino board used (for the Uno: MOSI = 11, MISO = 12, SCK = 13, SS = 10).
+    \end{itemize}
+    
+    \begin{figure} [h]
+            \centering
+            \includegraphics[width=0.5\linewidth]{assets/circuit-design.png}
+            \caption{Circuit Design}
+            \label{fig:enter-label}
+    \end{figure}
+    \newpage
+    
+    \subsubsection{Enclosure and Mounting}
+    The enclosure is waterproof and weather resistant, as well as plastic, so that the various transmissions can pass uninterrupted. The MPU6050 sensor is oriented such that the z-axis faces upwards, enabling detection of vertical movement from wave activity.
+    
 \subsection{Transmitter Module}
-\subsubsection{Data Acquisition Loop}
-Sensor readings are acquired in each loop iteration:
-\begin{itemize}
-    \item BMP280 returns temperature and pressure.
-    \item MPU6050 returns raw acceleration and gyroscopic values.
-    \item NEO-6M returns latitude and longitude.
-\end{itemize}
-Every second, a full data packet is composed, including coordinates, temperature, pressure, signal strength, and vertical acceleration. In intermediate cycles, only acceleration data are transmitted to reduce energy consumption.
-
-\subsubsection{Transmission}
-\begin{itemize}
-    \item Communication uses \textbf{RF22 modules} configured with GFSK modulation at \textbf{440 MHz}.
-    \item Packets are transmitted using \texttt{sendtoWait()} with acknowledgment.
-    \item Configuration includes maximum transmission power (20 dBm) and modulation settings optimized for balance between range and speed.
-\end{itemize}
-
-\subsubsection{Power Management}
-Although advanced sleep modes are not implemented, energy efficiency is improved via:
-\begin{itemize}
-    \item Selective data transmission/sending full packets once per second.
-    \item Configurable transmission power.
-    \item Power-efficient sensors.
-\end{itemize}
-
+    \subsubsection{Data Acquisition Loop}
+    Sensor readings are acquired in each loop iteration:
+    \begin{itemize}
+        \item BMP280 returns temperature and pressure.
+        \item MPU6050 returns raw acceleration and gyroscopic values.
+        \item NEO-6M returns latitude and longitude.
+    \end{itemize}
+    Every second, a full data packet is composed, including coordinates, temperature, pressure, signal strength and vertical acceleration. In intermediate cycles, only acceleration data are transmitted to reduce energy consumption.
+    
+    \subsubsection{Transmission}
+    Communication is carried out using RF22 modules configured with GFSK modulation at 440 MHz. Packets are transmitted using the sendtoWait() function, which includes acknowledgment. The configuration is set to use the maximum transmission power of 20 dBm, with modulation settings optimized to balance range and speed.
+    
+    \subsubsection{Power Management}
+    Although advanced sleep modes are not implemented, energy efficiency is improved through selective data transmission (with full packets sent once per second), configurable transmission power, and the use of power-efficient sensors.
+    
 \subsection{Receiver Module}
-\subsubsection{Reception}
-The receiver node mirrors the transmitter's configuration for compatibility. It:
-\begin{itemize}
-    \item Uses the same frequency and modulation settings.
-    \item Listens continuously for incoming data packets using \texttt{recvfromAck()}.
-    \item Calculates signal strength (RSSI) for logging and diagnostics.
-\end{itemize}
+    \subsubsection{Reception}
+    The receiver node mirrors the transmitter's configuration for compatibility. It uses the same frequency and modulation settings, continuously listens for incoming data packets using the \texttt{recvfromAck()} function, and calculates the signal strength (RSSI) for logging and diagnostics.
+    
+    \subsubsection{Serial Output}
+    Incoming data packets are printed directly onto the serial monitor in string format. This output is redirected to the backend and later to the GUI for end-user visualization and analysis.
 
-\subsubsection{Serial Output}
-Incoming data packets are printed directly onto the serial monitor in string format. This output is redirected to the backend and GUI for end-user visualization and analysis.
 \newpage
 \section{Backend}
 In this section we discuss the backend's features and capabilities, as well as its architecture. The role of the backend is to capture raw data from the sensor, analyze it, package it and send it to the frontend to be displayed in a meaningful way.
@@ -156,7 +144,7 @@ The data ingestion system is designed with a flexible architecture that accommod
 \subsection{Data Processing}
 
     \subsubsection{Wave Analysis}
-    The wave analysis module implements a frequency-domain approach to extract meaningful metrics from raw accelerometer data. It performs Fast Fourier Transform (FFT) to identify the dominant wave frequency, filtering out low-frequency components (below 0.1 Hz) to eliminate sensor drift and environmental noise. The system converts raw accelerometer readings from LSB units to standard m/s² using a calibration factor derived from the MPU6050 sensor's sensitivity at ±2g range (datasheet). A physics-based heuristic transforms the acceleration variance into estimated wave height by applying appropriate scaling based on wave frequency, yielding actionable metrics that describe sea state conditions. The module provides a clean interface that handles edge cases such as insufficient data points and returns normalized, rounded values suitable for downstream processing.
+    The wave analysis module implements a frequency-domain approach to extract meaningful metrics from raw accelerometer data. It performs Fast Fourier Transform (FFT) to identify the dominant wave frequency, filtering out low-frequency components (below 0.1 Hz) to eliminate sensor drift and environmental noise. The system converts raw accelerometer readings from LSB units to standard m/s² using a calibration factor derived from the MPU6050 sensor's sensitivity at ±2g range (datasheet). A physics-based heuristic transforms the acceleration variance into estimated wave height by applying appropriate scaling based on wave frequency, yielding actionable metrics that describe sea state conditions.
 
     \subsubsection{Mathematical Background}
     The shore impact analysis implements established coastal engineering models to translate wave metrics into practical inundation forecasts \cite{stockdon2006}. The system calculates fundamental wave parameters including period (reciprocal of frequency) and deep-water wavelength using standard gravity-based equations. The core of the analysis employs the Iribarren number (surf similarity parameter) to classify wave behavior as either dissipative or reflective/intermediate, applying the appropriate runup estimation formula for each regime. The model classifies hazard zones based on runup thresholds, with values exceeding 0.9 meters designated as high-risk (VE zone) \cite{fema2022}. The final inundation distance is calculated by applying the slope correction factor, providing horizontal reach estimates critical for coastal planning.
@@ -171,7 +159,7 @@ In this section we analyze the API endpoints available for the frontend to call
     The /info endpoint exposes environmental context data captured by the sensor array, specifically temperature (in degrees Celsius) and barometric pressure (in hectopascals).
 
     \subsubsection{Waves}
-    The /waves endpoint delivers processed wave characteristics and their projected coastal impact. It retrieves the acceleration time-series buffer from the sensor handler and passes it through the wave analysis pipeline to extract frequency and height parameters. These metrics are then fed into the shore impact model to calculate vertical runup height, FEMA flood zone classification, and horizontal inundation distance based on a predefined slope parameter (set to 0.05 const). This endpoint represents the system's primary analytical output, transforming raw sensor data into actionable coastal flooding information delivered in a standardized JSON format.
+    The /waves endpoint delivers processed wave characteristics and their projected coastal impact. It retrieves the acceleration time-series buffer from the sensor handler and passes it through the wave analysis pipeline to extract frequency and height parameters. These metrics are then fed into the shore impact model to calculate vertical runup height, FEMA flood zone classification and horizontal inundation distance based on a predefined slope parameter (set to 0.05 const). This endpoint represents the system's primary analytical output, transforming raw sensor data into actionable coastal flooding information delivered in a standardized JSON format.
 
     \subsubsection{Weather}
     The /weather endpoint enriches the system's data with third-party meteorological information by interfacing with the OpenWeatherMap API. It dynamically constructs API requests using the device's current geolocation coordinates and securely transmits the authentication key from environment variables. The endpoint parses the response to extract wind parameters (speed and direction) along with general weather conditions and human-readable descriptions.
@@ -219,14 +207,14 @@ This section focuses on explaining the part of the project that is responsible f
     The application follows a modern weather dashboard aesthetic with several notable design choices.
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.75\linewidth]{assets/FE_F2.png}
+        \includegraphics[width=1\linewidth]{assets/FE_F2.png}
         \caption{Web application look}
         \label{fig:frontend}
     \end{figure}
     \\
     More specifically, the website follows a \textit{Glassmorphic} design inspired by popular weather websites, making it easy and familiar for the user to understand the data shown.
     \subsubsection{Component Based Design}
-    The website used native widgets to display information. Each widget is has a title, explaining to the user what it shows and also gives descriptions for what the data translates to in the real world (i.e. Comments if current pressure is above or below average). Widgets like \textit{Current Condition} and \textit{Wind} also have dynamic icons that change in accordance to the conditions that it shows. The widgets that are currently available to our application are:
+    The website used native widgets to display information. Each widget is has a title, explaining to the user what it shows and also gives descriptions for what the data translates to in the real world (i.e. comments if current pressure is above or below average). Widgets like \textit{Current Condition} and \textit{Wind} also have dynamic icons that change in accordance to the conditions that it shows. The widgets that are currently available to our application are:
     \begin{itemize}
         \item The \textit{Current Condition} widget, which changes it's icon as well as color if the weather is \textit{Cloudy}, \textit{Raining} or \textit{Sunny}
         \item The \textit{Air Temperature} widget, that displays the current temperature as measured from the drone's on board sensor
@@ -239,13 +227,14 @@ This section focuses on explaining the part of the project that is responsible f
     This design philosophy allows us to easily add new widgets to our application on future updates making it modular while keeping a modern look.
 
     \subsubsection{Notifications and Warnings}
-    The web application also has the ability to notify the user for any alerts regarding extreme weather events or other events regarding the status of the drone.
+    The web application also has the ability to notify the user with alerts regarding extreme weather events or other events regarding the status of the drone.
     More specifically these notifications are categorized based on their priority:
     \begin{itemize}
         \item \textbf{Low priority}: At its current state, low priority notifications may be for example low signal strength or if the application fails to connect with a backend server
         \item \textbf{High priority}: The notifications warn the user for possible extreme weather events, like a tsunami in the case that a abnormally high wave appears
     \end{itemize}
     Low priority notifications are indicated with a \textit{yellow} color, while high priority notifications are showed in \textit{red}.
+    
     \begin{figure}[h]
         \centering
         \includegraphics[width=0.75\linewidth]{assets/FE_F1.png}\\
@@ -266,40 +255,58 @@ This section focuses on explaining the part of the project that is responsible f
     Lastly, low as well as high priority alerts have requests interval set at \textit{10} seconds, ensuring that notifications can arrive to the user in time.
     
     \subsubsection{Simulated and Live Modes}
-    Considering the difficulties associated with setting up a drone and backend infrastructure for a live demo, we have also set up the ability for the user to test our application with the help of an always online backend server, providing the front-end with simulated data. This setting can be changed any time at the bottom of the main page. If the user wants to test a real implementation of our project, they can do so, be pressing the 'Live' button, and filling in the IP and port number of their backend server.
-    \begin{figure}[h]
+    Considering the difficulties associated with setting up a drone and backend infrastructure for a live demo, we have also set up the ability for the user to test our application with the help of an always online backend server, providing the frontend with simulated data. This setting can be changed any time at the bottom of the main page. If the user wants to test a real implementation of our project, they can do so, be pressing the 'Live' button, and filling in the IP and port number of their backend server.
+    
+    \begin{figure}[H]
         \centering
-        \includegraphics[width=0.75\linewidth]{assets/FE_F5.png}
-        \caption{Changing between Live and Simulated modes}
+        \includegraphics[width=1\linewidth]{assets/FE_F5.png}
+        \caption{Live/Simulated Mode}
         \label{fig:simulated}
     \end{figure}
 
+\newpage
 \section{Conclusions}
     \subsection{Summary of Achievements}
+
+    The \textit{SPLASH} project successfully delivers a functional, low-cost and modular system for real-time maritime environmental monitoring. 
+    
+    A fully operational Arduino-based transmitter node was designed, integrating BMP280, MPU6050 and NEO-6M sensors to capture temperature, atmospheric pressure, vertical acceleration and geolocation data. Wireless communication was established using RF22 modules operating at 440 MHz with GFSK modulation, enabling efficient and reliable data transfer between the transmitter and receiver.
+    
+    The backend system supports both simulated and real-time sensor data ingestion. It features a resilient serial communication handler, error recovery mechanisms and a rolling time-series buffer for acceleration data. Data processing includes an FFT-based wave analysis module capable of estimating dominant wave frequency and height. This was further extended with a physics-based model to compute coastal impact metrics and classify flood risk zones.
+    
+    In addition to the core system, a range of supporting tools was developed, including utilities for serial data inspection, FFT visualization, dependency checking and codebase cleaning. The overall architecture emphasized modularity, allowing for easy expansion with additional sensors, backend features, or frontend components in the future.
+    
+    A set of API endpoints was created to expose system data, including status, environmental conditions, wave characteristics and third-party weather information. These endpoints formed the foundation for a frontend web application. The frontend employed a modern glassmorphic design and interactive widgets to visualize data in real time, supporting both simulated and live data modes.
+    
+    This set of accomplishments demonstrates the successful implementation of a scalable and user-friendly system for coastal monitoring.
     
     \subsection{Lessons Learned}
+    Through the implementation of this project, we gained valuable experience in building a cyber-physical system and became more adept at capturing, interpreting, and analyzing sensor data. Our programming and engineering skills improved significantly as we tackled challenges such as setting up a backend web server, developing a modular API architecture, and crafting both the physical prototype and a waterproof enclosure. We also deepened our understanding of wireless communication, sensor integration, and data visualization. This project provided us with a comprehensive, hands-on opportunity to bridge hardware with software and deliver meaningful environmental insights through a full-stack solution.
     \subsection{Future Work}
-    Future work includes:
+    Future improvements to the system may include:
     \begin{itemize}
-        \item use solar or aeolian power to charge the battery
-        \item proper battery level implementation for the /status endpoint
-        \item adding more sensors
-        \item 
+        \item Implementing a mesh network of drones for wider coverage and resilience
+        \item Integrating additional environmental sensors (e.g., humidity)
+        \item Embedding the hardware into a single hydrodynamic boat
+        \item Developing an automated navigation and docking system
+        \item Utilizing solar power for energy autonomy
+        \item Adding proper battery level monitoring to the \texttt{/status} endpoint
     \end{itemize}
 
+\newpage
 \appendix
-
 \section{User Manual}
-How to operate our Weather Station:
-\begin{enumerate}
-  \item 
-  \item 
-  \item 
-  \item 
-\end{enumerate}
+How to operate \textit{SPLASH}:
+\begin{itemize}
+    \item Power on the Arduino-based sensor module
+    \item Ensure the receiver is connected to a computer and listening via serial
+    \item Launch the backend server
+    \item Open the web application to view real-time data
+\end{itemize}
 
 \section{Bill of Materials}
 
+This is a \textit{rough} estimation of the total cost of the project.
 \renewcommand{\arraystretch}{1.3}
 \begin{table}[H]
     \centering
@@ -309,17 +316,18 @@ How to operate our Weather Station:
             & \multicolumn{1}{c}{\textbf{Quantity}} 
             & \multicolumn{1}{c}{\textbf{Price (€)}} \\
         \midrule
-        Arduino Uno R3           & 1 & 25 \\
-        Powerbank                & 1 & 10 \\
-        NEO-6M GPS               & 1 &  7 \\
-        MPU6050 Sensor           & 1 &  3 \\
-        BMP280 Sensor            & 1 &  2 \\
-        Waterproof enclosure     & 1 &  2 \\
-        USB Power Cable          & 1 &  1 \\
-        Jumper Wires             & 10 & 1 \\
-        Prototyping board        & 10 & .5 \\
+        Arduino Uno R3           & 2  & 25  \\
+        RF22 card                & 2  & 32  \\
+        Waterproof enclosure     & 1  & 22  \\
+        Powerbank                & 1  & 10  \\
+        NEO-6M GPS               & 1  &  7  \\
+        MPU6050 Sensor           & 1  &  3  \\
+        BMP280 Sensor            & 1  &  2  \\
+        USB Power Cable          & 1  &  1  \\
+        Jumper Wires             & 10 & 0.1 \\
+        Prototyping board        & 1  & .5  \\
         \midrule
-        \textbf{Total}           &   & \textbf{41.5} \\
+        \textbf{Total}           &   & \textbf{160.5} \\
         \bottomrule
     \end{tabular}
     \caption{Bill of Materials}
