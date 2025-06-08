@@ -22,8 +22,8 @@
 
 \maketitle
 \begin{center}
-  \textbf{Repository:} \\
-  \href{https://github.com/ioannisam/SPLASH}{github.com/ioannisam/SPLASH}
+  \textbf{Code Repository:} \\
+  \href{https://github.com/ioannisam/SPLASH}{SPLASH}
 \end{center}
 \bigskip
 \begin{abstract}
@@ -61,10 +61,10 @@ This project implements a \textit{remote weather station}. The premise is to use
 
 \newpage
 \section{Arduino}
-In this section, we discuss the Arduino system’s features, capabilities, and architecture. The role of the Arduino module is to acquire raw data from multiple sensors, process and format it into structured packets, and wirelessly transmit it to the receiver for further handling. This hardware platform serves as the primary interface with the physical environment, enabling real-time environmental monitoring and data collection.
+In this section, we discuss the Arduino system’s features, capabilities and architecture. The role of the Arduino module is to acquire raw data from multiple sensors, process and format it into structured packets and wirelessly transmit it to the receiver for further handling. This hardware platform serves as the primary interface with the physical environment, enabling real-time environmental monitoring and data collection.
 \subsection{Hardware Components}
     \subsubsection{Sensor Selection}
-    We aimed to develop a compact and cost-effective environmental sensing system capable of monitoring atmospheric conditions, motion dynamics, and geographic positioning. This is the reason why the following three sensors were integrated into the transmitter node:
+    We aimed to develop a compact and cost-effective environmental sensing system capable of monitoring atmospheric conditions, motion dynamics and geographic positioning. This is the reason why the following three sensors were integrated into the transmitter node:
     
     \begin{tabular}{@{}m{0.25\textwidth} m{0.7\textwidth}@{}}
         \includegraphics[width=0.9\linewidth, angle=90]{assets/bmp280.jpg} &
@@ -112,11 +112,11 @@ In this section, we discuss the Arduino system’s features, capabilities, and a
     Communication is carried out using RF22 modules configured with GFSK modulation at 440 MHz. Packets are transmitted using the sendtoWait() function, which includes acknowledgment. The configuration is set to use the maximum transmission power of 20 dBm, with modulation settings optimized to balance range and speed.
     
     \subsubsection{Power Management}
-    Although advanced sleep modes are not implemented, energy efficiency is improved through selective data transmission (with full packets sent once per second), configurable transmission power, and the use of power-efficient sensors.
+    Although advanced sleep modes are not implemented, energy efficiency is improved through selective data transmission (with full packets sent once per second), configurable transmission power and the use of power-efficient sensors.
     
 \subsection{Receiver Module}
     \subsubsection{Reception}
-    The receiver node mirrors the transmitter's configuration for compatibility. It uses the same frequency and modulation settings, continuously listens for incoming data packets using the \texttt{recvfromAck()} function, and calculates the signal strength (RSSI) for logging and diagnostics.
+    The receiver node mirrors the transmitter's configuration for compatibility. It uses the same frequency and modulation settings, continuously listens for incoming data packets using the \texttt{recvfromAck()} function and calculates the signal strength (RSSI) for logging and diagnostics.
     
     \subsubsection{Serial Output}
     Incoming data packets are printed directly onto the serial monitor in string format. This output is redirected to the backend and later to the GUI for end-user visualization and analysis.
@@ -127,7 +127,6 @@ In this section we discuss the backend's features and capabilities, as well as i
 
 \subsection{Data Ingestion}
 The data ingestion system is designed with a flexible architecture that accommodates both development and production environments through two specialized handlers; \texttt{SimulatedHandler} and \texttt{RealHandler}. Both handlers expose a consistent interface through the \texttt{SerialHandler} facade, which transparently selects the appropriate implementation based on the configured operational mode (\texttt{DEMO} or \texttt{DEPLOY}). This design pattern enables the application to operate identically regardless of data source, facilitating a smooth transition between development and production environments.
-
     \subsubsection{Simulated Handler}
     The \texttt{SimulatedHandler} provides a simulation environment for development and testing purposes. It generates realistic sensor data that mimics actual hardware outputs. The simulation incorporates deliberate variability -employing sinusoidal patterns with randomized amplitude, frequency and noise components- to realistically model sensor behavior. Data generation occurs in a dedicated thread running at 100Hz, maintaining a rolling buffer of 500 samples (equivalent to 5 seconds of historical acceleration data). This approach enabled us to test data processing pipelines, visualization systems and analytical algorithms without requiring physical sensor hardware.
     
@@ -142,7 +141,6 @@ The data ingestion system is designed with a flexible architecture that accommod
     \end{figure}
 
 \subsection{Data Processing}
-
     \subsubsection{Wave Analysis}
     The wave analysis module implements a frequency-domain approach to extract meaningful metrics from raw accelerometer data. It performs Fast Fourier Transform (FFT) to identify the dominant wave frequency, filtering out low-frequency components (below 0.1 Hz) to eliminate sensor drift and environmental noise. The system converts raw accelerometer readings from LSB units to standard m/s² using a calibration factor derived from the MPU6050 sensor's sensitivity at ±2g range (datasheet). A physics-based heuristic transforms the acceleration variance into estimated wave height by applying appropriate scaling based on wave frequency, yielding actionable metrics that describe sea state conditions.
 
@@ -153,7 +151,7 @@ The data ingestion system is designed with a flexible architecture that accommod
 In this section we analyze the API endpoints available for the frontend to call
 
     \subsubsection{Status}
-    The /status endpoint provides essential system telemetry for monitoring the operational state of the device. It returns a JSON payload containing connectivity status, power information (battery percentage), and geolocation coordinates derived from the sensor data stream. The endpoint also includes signal strength metrics (measured in dBm) to facilitate deployment troubleshooting and network quality assessment. By serving as a lightweight health check, this endpoint enables rapid verification of device functionality without interrogating the more resource-intensive data processing pipelines.
+    The /status endpoint provides essential system telemetry for monitoring the operational state of the device. It returns a JSON payload containing connectivity status, power information (battery percentage) and geolocation coordinates derived from the sensor data stream. The endpoint also includes signal strength metrics (measured in dBm) to facilitate deployment troubleshooting and network quality assessment. By serving as a lightweight health check, this endpoint enables rapid verification of device functionality without interrogating the more resource-intensive data processing pipelines.
 
     \subsubsection{Info}
     The /info endpoint exposes environmental context data captured by the sensor array, specifically temperature (in degrees Celsius) and barometric pressure (in hectopascals).
@@ -197,7 +195,7 @@ This section focuses on explaining the part of the project that is responsible f
     The application is built using several different tools and frameworks with the goal to create a modern and intuitive user experience. In more depth, we used \textbf{React} along with \textbf{TypeScript}, which serves as the foundation for the component-based architecture that we used, providing a responsive and interactive user interface, making it feel closer to a native application instead of a traditional website. TypeScript is used to add static typing, in order to enhance code reliability, readability as well as maintainability. We also used several libraries for enchancing the user experience, like:
     \begin{itemize}
         \item \textbf{Recharts}: Powers the data visualization for the wave height monitoring with interactive charts
-        \item \textbf{Lucide React}: Supplies the iconography used throughout the interface for weather conditions, status indicators, and UI elements
+        \item \textbf{Lucide React}: Supplies the iconography used throughout the interface for weather conditions, status indicators and UI elements
         \item \textbf{Framer Motion}: Provides fluid animations and transitions for alerts and UI elements
         \item \textbf{Tailwind CSS}: Implements custom styling with utility-first classes, creating consistent design patterns across components
     \end{itemize}
@@ -213,6 +211,7 @@ This section focuses on explaining the part of the project that is responsible f
     \end{figure}
     \\
     More specifically, the website follows a \textit{Glassmorphic} design inspired by popular weather websites, making it easy and familiar for the user to understand the data shown.
+    
     \subsubsection{Component Based Design}
     The website used native widgets to display information. Each widget is has a title, explaining to the user what it shows and also gives descriptions for what the data translates to in the real world (i.e. comments if current pressure is above or below average). Widgets like \textit{Current Condition} and \textit{Wind} also have dynamic icons that change in accordance to the conditions that it shows. The widgets that are currently available to our application are:
     \begin{itemize}
@@ -248,14 +247,14 @@ This section focuses on explaining the part of the project that is responsible f
     \subsubsection{API Requests}
     Each widget handles API requests independently. Different widgets fetch data at different time intervals. This approach, while it isn't the most efficient when making API calls, makes the system more modular when creating new widgets and expanding the functionality of the application. More specifically:
     \begin{itemize}
-        \item The \textit{Current Condition} and \textit{Wind} widgets, make API requests to the backend server every \textit{3} minutes. This is done because our current approach relies on an external API for collecting this data, and there is a limit to the number of requests the system can make daily.
+        \item The \textit{Current Condition} and \textit{Wind} widgets, make API requests to the backend server every \textit{3} minutes. This is done because our current approach relies on an external API for collecting this data and there is a limit to the number of requests the system can make daily.
         \item The \textit{Wave Height} widget, makes request to our backend request every second, as this makes its corresponding graph more responsive and informative
         \item The rest of the widgets currently implemented, have intervals set at \textit{30} seconds, as they do not rely on any external APIs and don't overload our backend server
     \end{itemize}
     Lastly, low as well as high priority alerts have requests interval set at \textit{10} seconds, ensuring that notifications can arrive to the user in time.
     
     \subsubsection{Simulated and Live Modes}
-    Considering the difficulties associated with setting up a drone and backend infrastructure for a live demo, we have also set up the ability for the user to test our application with the help of an always online backend server, providing the frontend with simulated data. This setting can be changed any time at the bottom of the main page. If the user wants to test a real implementation of our project, they can do so, be pressing the 'Live' button, and filling in the IP and port number of their backend server.
+    Considering the difficulties associated with setting up a drone and backend infrastructure for a live demo, we have also set up the ability for the user to test our application with the help of an always online backend server, providing the frontend with simulated data. This setting can be changed any time at the bottom of the main page. If the user wants to test a real implementation of our project, they can do so, be pressing the 'Live' button and filling in the IP and port number of their backend server.
     
     \begin{figure}[H]
         \centering
@@ -267,7 +266,6 @@ This section focuses on explaining the part of the project that is responsible f
 \newpage
 \section{Conclusions}
     \subsection{Summary of Achievements}
-
     The \textit{SPLASH} project successfully delivers a functional, low-cost and modular system for real-time maritime environmental monitoring. 
     
     A fully operational Arduino-based transmitter node was designed, integrating BMP280, MPU6050 and NEO-6M sensors to capture temperature, atmospheric pressure, vertical acceleration and geolocation data. Wireless communication was established using RF22 modules operating at 440 MHz with GFSK modulation, enabling efficient and reliable data transfer between the transmitter and receiver.
@@ -281,7 +279,7 @@ This section focuses on explaining the part of the project that is responsible f
     This set of accomplishments demonstrates the successful implementation of a scalable and user-friendly system for coastal monitoring.
     
     \subsection{Lessons Learned}
-    Through the implementation of this project, we gained valuable experience in building a cyber-physical system and became more adept at capturing, interpreting, and analyzing sensor data. Our programming and engineering skills improved significantly as we tackled challenges such as setting up a backend web server, developing a modular API architecture, and crafting both the physical prototype and a waterproof enclosure. We also deepened our understanding of wireless communication, sensor integration, and data visualization. This project provided us with a comprehensive, hands-on opportunity to bridge hardware with software and deliver meaningful environmental insights through a full-stack solution.
+    Through the implementation of this project, we gained valuable experience in building a cyber-physical system and became more adept at capturing, interpreting and analyzing sensor data. Our programming and engineering skills improved significantly as we tackled challenges such as setting up a backend web server, developing a modular API architecture and crafting both the physical prototype and a waterproof enclosure. We also deepened our understanding of wireless communication, sensor integration and data visualization. This project provided us with a comprehensive, hands-on opportunity to bridge hardware with software and deliver meaningful environmental insights through a full-stack solution.
     \subsection{Future Work}
     Future improvements to the system may include:
     \begin{itemize}
@@ -296,52 +294,57 @@ This section focuses on explaining the part of the project that is responsible f
 \newpage
 \appendix
 \section{User Manual}
-How to operate \textit{SPLASH}:
-\begin{itemize}
-    \item Power on the Arduino-based sensor module
-    \item Ensure the receiver is connected to a computer and listening via serial
-    \item Launch the backend server
-    \item Open the web application to view real-time data
-\end{itemize}
+    How to operate \textit{SPLASH}:
+    \begin{itemize}
+        \item Power on the Arduino-based sensor module
+        \item Ensure the receiver is connected to a computer and listening via serial
+        \item Launch the backend server
+        \item Open the web application to view real-time data
+    \end{itemize}
 
 \section{Bill of Materials}
-
-This is a \textit{rough} estimation of the total cost of the project.
-\renewcommand{\arraystretch}{1.3}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{@{} C C C @{}}
-        \toprule
-        \multicolumn{1}{c}{\textbf{Item}} 
-            & \multicolumn{1}{c}{\textbf{Quantity}} 
-            & \multicolumn{1}{c}{\textbf{Price (€)}} \\
-        \midrule
-        Arduino Uno R3           & 2  & 25  \\
-        RF22 card                & 2  & 32  \\
-        Waterproof enclosure     & 1  & 22  \\
-        Powerbank                & 1  & 10  \\
-        NEO-6M GPS               & 1  &  7  \\
-        MPU6050 Sensor           & 1  &  3  \\
-        BMP280 Sensor            & 1  &  2  \\
-        USB Power Cable          & 1  &  1  \\
-        Jumper Wires             & 10 & 0.1 \\
-        Prototyping board        & 1  & .5  \\
-        \midrule
-        \textbf{Total}           &   & \textbf{160.5} \\
-        \bottomrule
-    \end{tabular}
-    \caption{Bill of Materials}
-    \label{tab:bom}
-\end{table}
+    This is a \textit{rough} estimation of the total cost of the project.
+    \renewcommand{\arraystretch}{1.3}
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{@{} C C C @{}}
+            \toprule
+            \multicolumn{1}{c}{\textbf{Item}} 
+                & \multicolumn{1}{c}{\textbf{Quantity}} 
+                & \multicolumn{1}{c}{\textbf{Price (€)}} \\
+            \midrule
+            Arduino Uno R3           & 2  & 25  \\
+            RF22 card                & 2  & 32  \\
+            Waterproof enclosure     & 1  & 22  \\
+            Powerbank                & 1  & 10  \\
+            NEO-6M GPS               & 1  &  7  \\
+            MPU6050 Sensor           & 1  &  3  \\
+            BMP280 Sensor            & 1  &  2  \\
+            USB Power Cable          & 1  &  1  \\
+            Jumper Wires             & 10 & 0.1 \\
+            Prototyping board        & 1  & .5  \\
+            \midrule
+            \textbf{Total}           &   & \textbf{160.5} \\
+            \bottomrule
+        \end{tabular}
+        \caption{Bill of Materials}
+        \label{tab:bom}
+    \end{table}
 
 \section{Tools and Frameworks}
-The following tools and frameworks were used:
-\begin{itemize}
-  \item Arduino IDE (Sensor Interaction)
-  \item Python with Flask (Backend API)
-  \item TypeScript with React (Frontend UI)
-\end{itemize}
+    The following tools and frameworks were used:
+    \begin{itemize}
+      \item Arduino IDE (Sensor Interaction)
+      \item Python with Flask (Backend API)
+      \item TypeScript with React (Frontend UI)
+    \end{itemize}
 
+\section{Videos}
+    \begin{itemize}
+        \item \href{https://www.youtube.com/watch?v=GD0r5xGcenA}{DEMO}
+        \item \href{https://www.youtube.com/watch?v=TnTkD0Kx9Sg}{SPOT}
+    \end{itemize}
+    
 \begin{thebibliography}{9}
     \bibitem[\href{https://data-ww3.ifremer.fr/BIB/Stockdon_etal_CE2006.pdf}{1}]{stockdon2006}
         Stockdon, H.~F.; Holman, R.~A.; Reichmuth, A.; Van Ormondt, M.  
