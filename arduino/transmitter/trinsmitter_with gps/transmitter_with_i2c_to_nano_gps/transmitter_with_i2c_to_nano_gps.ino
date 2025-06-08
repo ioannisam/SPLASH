@@ -3,6 +3,7 @@
 #include <RF22Router.h>
 #include "MPU6050.h"    
 #include  <Adafruit_BMP280.h>
+#include <Wire.h>
 
 #define MY_ADDRESS 1
 #define DESTINATION_ADDRESS 2
@@ -34,8 +35,11 @@ float Pr; //Signal Strength
 // we send different type of data at different rates to conserve energy
 unsigned long previousMillis = 0;
 const long interval = 1000;
+char received[20]; // Buffer to store received data
 
 void setup() {
+  Wire.begin(); // Join as master for I2C with nano
+  
   Serial.begin(BAUD_RATE);
   if (!rf22.init()) {
     Serial.println("RF22 init failed");
@@ -54,10 +58,7 @@ void setup() {
     digitalWrite(pinNumber, LOW);
   }
   
-
-  
   //Serial.println(F("BMP280 test"));
-  
   if  (!bmp.begin(0x76)) {
   Serial.println(F("ERROR"));
   //  while (1);
@@ -76,8 +77,6 @@ void loop() {
   int counter = 0;
   int initial_time = millis();
 
-  char latStr[10];
-  char lonStr[10];
   char sigStr[10];
   char tempStr[10];
   char presStr[10];
@@ -87,17 +86,18 @@ void loop() {
   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
   //data.Z = map(az, -17000, 17000, 0, 255);  // Z axis data
   
-  float lat = 40.636427;
-  float lon = 22.947077;
+  Wire.requestFrom(0x08, 20); // Request 20 bytes
+  int i = 0;
+  while (Wire.available() && i < 20) {
+    received[i++] = Wire.read();
+  }
+  received[20] = '\0'; // Just to be safe: manually null-terminate the string
   float sig = Pr;
   float temp = bmp.readTemperature();
   float pres = bmp.readPressure()/100;
   int acc = az-offset;
-  
-  dtostrf(lat, 9, 6, latStr);   // width=7, precision=2
-  dtostrf(lon, 9, 6, lonStr);   // width=6, precision=2
-  dtostrf(sig, 5, 1, sigStr);   // width=7, precision=2
-  dtostrf(temp, 4, 1, tempStr);   // width=6, precision=2
+  dtostrf(sig, 5, 1, sigStr);   // width=5, precision=1
+  dtostrf(temp, 4, 1, tempStr);   // width=4, precision=1
   dtostrf(pres, 7, 2, presStr);   // width=7, precision=2
   itoa(acc, accStr, 10);          // convert int to string
 
@@ -111,17 +111,13 @@ void loop() {
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    snprintf(data_read, RF22_ROUTER_MAX_MESSAGE_LEN, "%s:%s:%s:%s:%s:%s", latStr, lonStr, sigStr, tempStr, presStr, accStr);
+    snprintf(data_read, RF22_ROUTER_MAX_MESSAGE_LEN, "%s:%s:%s:%s:%s", received, sigStr, tempStr, presStr, accStr);
   } else {
     snprintf(data_read, RF22_ROUTER_MAX_MESSAGE_LEN, "%s", accStr);
   }
   Serial.println(data_read);
   data_read[RF22_ROUTER_MAX_MESSAGE_LEN - 1] = '\0';
   memcpy(data_send, data_read, RF22_ROUTER_MAX_MESSAGE_LEN);
-
-  int number_of_bytes = sizeof(data_send);
-  //Serial.print("Number of Bytes= ");
-  //Serial.println(number_of_bytes);
 
   // Sending variable data_send to DESTINATION_ADDRESS
   if (rf22.sendtoWait(data_send, sizeof(data_send), DESTINATION_ADDRESS) != RF22_ROUTER_ERROR_NONE) {
@@ -130,28 +126,5 @@ void loop() {
     counter=counter+1;
     uint8_t rssi = rf22.rssiRead();
     Pr=((float)rssi-230.0)/1.8;
-    /*
-    Serial.print("RSSI= ");
-    Serial.print(Pr);
-    Serial.println(" dBm");
-    Serial.println("Message sent successfully");
-    */
   }
-
-  int final_time=millis();
-  //print measurments
-  /*float throughput=(float)counter*number_of_bytes*1000.0/(final_time-initial_time);
-
-  Serial.print("Throughput=");
-  Serial.print(throughput);
-  Serial.println("Bytes/s");
-
-  Serial.print("Initial time= ");  
-  Serial.print(initial_time);
-
-  Serial.print("Final time= ");  
-  Serial.println(final_time);
-  Serial.println("");
-  delay(2000);*/
 }
-
